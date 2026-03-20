@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Verify Email</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="auth">
+    <section class="card">
+      <div class="brand">
+        <div class="brand-mark">BTG</div>
+        <h1>Verify Your Email</h1>
+        <p>Enter the 6-digit code we sent to your inbox.</p>
+      </div>
+      <div class="forms">
+        <form id="verify" class="auth-form is-active" novalidate>
+          <h2>Verification Code</h2>
+          <p class="subtitle">Check your email and type the OTP below.</p>
+          <div class="email-row">
+            <span class="email-text" data-email>you@company.com</span>
+            <button class="link" type="button" data-edit>Edit email</button>
+          </div>
+          <input type="hidden" name="email" required />
+          <span class="field-error" data-error-for="email"></span>
+          <label>
+            OTP Code
+            <div class="otp" data-otp>
+              <input class="otp-box" type="text" inputmode="numeric" maxlength="1" aria-label="Digit 1" />
+              <input class="otp-box" type="text" inputmode="numeric" maxlength="1" aria-label="Digit 2" />
+              <input class="otp-box" type="text" inputmode="numeric" maxlength="1" aria-label="Digit 3" />
+              <input class="otp-box" type="text" inputmode="numeric" maxlength="1" aria-label="Digit 4" />
+              <input class="otp-box" type="text" inputmode="numeric" maxlength="1" aria-label="Digit 5" />
+              <input class="otp-box" type="text" inputmode="numeric" maxlength="1" aria-label="Digit 6" />
+            </div>
+            <input type="hidden" name="otp" required />
+            <span class="field-error" data-error-for="otp"></span>
+          </label>
+          <button class="primary" type="submit">Verify & Continue</button>
+          <button class="link" type="button" data-resend disabled>Resend code</button>
+          <p class="helper" data-timer></p>
+          <p class="helper" data-message></p>
+        </form>
+      </div>
+    </section>
+  </main>
+  <script src="verify.js"></script>
+</body>
+</html>

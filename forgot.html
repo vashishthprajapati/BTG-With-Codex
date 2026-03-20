@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Forgot Password</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="auth">
+    <section class="card">
+      <div class="brand">
+        <div class="brand-mark">BTG</div>
+        <h1>Forgot Password</h1>
+        <p>Enter your email and we will send a reset link.</p>
+      </div>
+      <div class="forms">
+        <form id="forgot" class="auth-form is-active" novalidate>
+          <h2>Reset your password</h2>
+          <p class="subtitle">We will email you a secure reset link.</p>
+          <label>
+            Email
+            <input type="email" name="email" placeholder="you@company.com" required />
+            <span class="field-error" data-error-for="email"></span>
+          </label>
+          <button class="primary" type="submit">Send reset link</button>
+          <button class="link" type="button" data-back>Back to login</button>
+          <p class="helper" data-message></p>
+        </form>
+      </div>
+    </section>
+  </main>
+  <script src="forgot.js"></script>
+</body>
+</html>

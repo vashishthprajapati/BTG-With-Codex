@@ -1,0 +1,97 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login & Signup</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="auth">
+    <header class="topbar">
+      <div class="brand-mark small">BTG</div>
+      <div class="status" data-status>
+        <span class="dot"></span>
+        <span class="status-text">Checking session...</span>
+      </div>
+    </header>
+    <section class="card">
+      <div class="brand">
+        <div class="brand-mark">BTG</div>
+        <h1>Welcome Back</h1>
+        <p>Sign in to keep the momentum. New here? Create an account in seconds.</p>
+        <div class="switcher" role="tablist" aria-label="Auth mode">
+          <button class="switch-btn is-active" data-target="login" role="tab" aria-selected="true">Login</button>
+          <button class="switch-btn" data-target="signup" role="tab" aria-selected="false">Sign Up</button>
+        </div>
+        <ul class="perks">
+          <li>Fast, secure access</li>
+          <li>Personalized dashboard</li>
+          <li>One-click recovery</li>
+        </ul>
+      </div>
+
+      <div class="forms">
+        <form id="login" class="auth-form is-active" novalidate>
+          <h2>Login</h2>
+          <p class="subtitle">Use your credentials to continue.</p>
+          <div class="social-row">
+            <button class="social google" type="button">Continue with Google</button>
+            <button class="social github" type="button">Continue with GitHub</button>
+          </div>
+          <div class="divider"><span>or</span></div>
+          <label>
+            Email
+            <input type="email" name="email" placeholder="you@company.com" required />
+            <span class="field-error" data-error-for="email"></span>
+          </label>
+          <label>
+            Password
+            <input type="password" name="password" placeholder="••••••••" required minlength="6" />
+            <span class="field-error" data-error-for="password"></span>
+          </label>
+          <div class="row">
+            <label class="check">
+              <input type="checkbox" name="remember" />
+              Remember me
+            </label>
+            <button class="link" type="button" data-forgot>Forgot password?</button>
+          </div>
+          <button class="primary" type="submit">Login</button>
+          <p class="helper" data-message></p>
+        </form>
+
+        <form id="signup" class="auth-form" novalidate>
+          <h2>Create Account</h2>
+          <p class="subtitle">Join and get started in under a minute.</p>
+          <div class="social-row">
+            <button class="social google" type="button">Sign up with Google</button>
+            <button class="social github" type="button">Sign up with GitHub</button>
+          </div>
+          <div class="divider"><span>or</span></div>
+          <label>
+            Full name
+            <input type="text" name="name" placeholder="Alex Johnson" required />
+            <span class="field-error" data-error-for="name"></span>
+          </label>
+          <label>
+            Email
+            <input type="email" name="email" placeholder="alex@company.com" required />
+            <span class="field-error" data-error-for="email"></span>
+          </label>
+          <label>
+            Password
+            <input type="password" name="password" placeholder="At least 8 characters" required minlength="8" />
+            <span class="field-error" data-error-for="password"></span>
+          </label>
+          <button class="primary" type="submit">Create account</button>
+          <p class="helper" data-message></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" data-toast></div>
+  <script src="app.js"></script>
+</body>
+</html>

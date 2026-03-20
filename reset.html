@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reset Password</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="auth">
+    <section class="card">
+      <div class="brand">
+        <div class="brand-mark">BTG</div>
+        <h1>Reset Password</h1>
+        <p>Set a new password for your account.</p>
+      </div>
+      <div class="forms">
+        <form id="reset" class="auth-form is-active" novalidate>
+          <h2>New password</h2>
+          <p class="subtitle">Choose something strong and memorable.</p>
+          <label>
+            New password
+            <input type="password" name="password" placeholder="At least 8 characters" required minlength="8" />
+            <span class="field-error" data-error-for="password"></span>
+          </label>
+          <label>
+            Confirm password
+            <input type="password" name="confirm" placeholder="Repeat password" required minlength="8" />
+            <span class="field-error" data-error-for="confirm"></span>
+          </label>
+          <button class="primary" type="submit">Reset password</button>
+          <p class="helper" data-message></p>
+        </form>
+      </div>
+    </section>
+  </main>
+  <script src="reset.js"></script>
+</body>
+</html>
