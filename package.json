@@ -2,9 +2,9 @@
   "name": "btg-auth",
   "version": "1.0.0",
   "description": "Login/signup with MongoDB sessions",
-  "main": "server.js",
+  "main": "src/server.js",
   "scripts": {
-    "dev": "node server.js"
+    "dev": "node src/server.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
