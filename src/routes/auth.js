@@ -15,6 +15,22 @@ const safeUser = (user) => ({
   avatarUrl: user.avatarUrl || null
 });
 
+const setSessionUser = (req, user) => {
+  if (!req || !req.session || !user) return;
+  req.session.userId = user._id.toString();
+  req.session.user = {
+    id: user._id.toString(),
+    name: user.name,
+    email: user.email
+  };
+};
+
+const saveSession = (req) =>
+  new Promise((resolve, reject) => {
+    if (!req || !req.session) return resolve();
+    req.session.save((err) => (err ? reject(err) : resolve()));
+  });
+
 const createRateLimiter = ({ windowMs, max }) => {
   const hits = new Map();
   return (req, res, next) => {
@@ -57,6 +73,18 @@ const sendOtpEmail = async (to, otp) => {
     to,
     subject: "Your BTG verification code",
     text: `Your verification code is ${otp}. It expires in 10 minutes.`,
+  });
+};
+
+const sendResetEmail = async (to, resetUrl) => {
+  if (!process.env.SMTP_HOST) {
+    throw new Error("SMTP not configured");
+  }
+  await transporter.sendMail({
+    from: process.env.SMTP_FROM || "no-reply@example.com",
+    to,
+    subject: "Reset your BTG password",
+    text: `Reset your password using this link: ${resetUrl} (valid for 1 hour).`,
   });
 };
 
@@ -125,7 +153,8 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid email or password." });
     }
 
-    req.session.userId = user._id.toString();
+    setSessionUser(req, user);
+    await saveSession(req);
     res.json({ user: safeUser(user) });
   } catch (error) {
     res.status(500).json({ error: "Login failed." });
@@ -156,7 +185,8 @@ router.post("/verify-otp", async (req, res) => {
 
   await PendingUser.deleteOne({ _id: pending._id });
 
-  req.session.userId = user._id.toString();
+  setSessionUser(req, user);
+  await saveSession(req);
   res.json({ user: safeUser(user) });
 });
 
@@ -183,13 +213,16 @@ router.post("/otp/resend", resendLimiter, async (req, res) => {
 
 router.post("/logout", (req, res) => {
   req.session.destroy(() => {
-    res.clearCookie("btg.sid");
+    const cookieOptions = req.app?.locals?.sessionCookieOptions || {};
+    res.clearCookie("btg.sid", cookieOptions);
     res.json({ ok: true });
   });
 });
 
 router.get("/me", async (req, res) => {
   if (req.user) {
+    setSessionUser(req, req.user);
+    await saveSession(req);
     return res.json({ user: safeUser(req.user) });
   }
 
@@ -202,7 +235,31 @@ router.get("/me", async (req, res) => {
     return res.status(401).json({ error: "Not authenticated." });
   }
 
+  setSessionUser(req, user);
+  await saveSession(req);
   res.json({ user: safeUser(user) });
+});
+
+router.get("/session", async (req, res) => {
+  const sessionId = req.sessionID || null;
+  if (!req.session || (!req.session.userId && !req.session.user)) {
+    return res.status(401).json({ error: "Not authenticated.", sessionId });
+  }
+
+  let user = req.session.user || null;
+  if (!user && req.session.userId) {
+    const dbUser = await User.findById(req.session.userId);
+    if (dbUser) {
+      user = { id: dbUser._id.toString(), name: dbUser.name, email: dbUser.email };
+      req.session.user = user;
+    }
+  }
+
+  if (!user) {
+    return res.status(401).json({ error: "Not authenticated.", sessionId });
+  }
+
+  return res.json({ sessionId, user });
 });
 
 router.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
@@ -212,9 +269,11 @@ router.get(
   passport.authenticate("google", { failureRedirect: "/?error=oauth" }),
   (req, res) => {
     if (req.user) {
-      req.session.userId = req.user._id.toString();
+      setSessionUser(req, req.user);
     }
-    res.redirect(process.env.FRONTEND_ORIGIN || "/");
+    req.session.save(() => {
+      res.redirect(process.env.FRONTEND_ORIGIN || "/");
+    });
   }
 );
 
@@ -225,9 +284,11 @@ router.get(
   passport.authenticate("github", { failureRedirect: "/?error=oauth" }),
   (req, res) => {
     if (req.user) {
-      req.session.userId = req.user._id.toString();
+      setSessionUser(req, req.user);
     }
-    res.redirect(process.env.FRONTEND_ORIGIN || "/");
+    req.session.save(() => {
+      res.redirect(process.env.FRONTEND_ORIGIN || "/");
+    });
   }
 );
 
@@ -251,10 +312,18 @@ router.post("/password/forgot", async (req, res) => {
 
   const resetUrl = `${req.protocol}://${req.get("host")}/reset.html?token=${token}`;
 
-  res.json({
-    message: "If the email exists, a reset link has been sent.",
-    resetUrl: process.env.NODE_ENV === "production" ? undefined : resetUrl,
-  });
+  try {
+    await sendResetEmail(user.email, resetUrl);
+    res.json({ message: "If the email exists, a reset link has been sent." });
+  } catch (error) {
+    if (process.env.NODE_ENV !== "production") {
+      return res.json({
+        message: "If the email exists, a reset link has been sent.",
+        resetUrl,
+      });
+    }
+    return res.status(500).json({ error: "SMTP not configured." });
+  }
 });
 
 router.post("/password/reset", async (req, res) => {

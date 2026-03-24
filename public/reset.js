@@ -17,9 +17,11 @@ const clearFieldErrors = () => {
 
 const params = new URLSearchParams(window.location.search);
 const token = params.get("token");
+const submitButton = resetForm.querySelector(".primary");
 
 if (!token) {
   showMessage("Missing reset token.", true);
+  if (submitButton) submitButton.disabled = true;
 }
 
 const API_BASE = window.API_BASE || "";
@@ -35,6 +37,10 @@ const checkSession = () => {
 resetForm.addEventListener("submit", (event) => {
   event.preventDefault();
   clearFieldErrors();
+  if (!token) {
+    showMessage("Missing reset token.", true);
+    return;
+  }
   const password = resetForm.password.value.trim();
   const confirm = resetForm.confirm.value.trim();
 

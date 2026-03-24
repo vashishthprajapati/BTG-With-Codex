@@ -19,9 +19,14 @@ const MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/btg_au
 const SESSION_SECRET = process.env.SESSION_SECRET || "change-me";
 const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
-const SAME_SITE = IS_PRODUCTION || !FRONTEND_ORIGIN.startsWith("http://localhost")
-  ? "none"
-  : "lax";
+const IS_LOCAL_FRONTEND = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(FRONTEND_ORIGIN);
+const SAME_SITE = IS_PRODUCTION || !IS_LOCAL_FRONTEND ? "none" : "lax";
+const COOKIE_SECURE = IS_PRODUCTION || SAME_SITE === "none";
+const SESSION_COOKIE_OPTIONS = {
+  httpOnly: true,
+  sameSite: SAME_SITE,
+  secure: COOKIE_SECURE
+};
 
 mongoose
   .connect(MONGODB_URI)
@@ -46,14 +51,12 @@ app.use(
     secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    store: MongoStore.create({ mongoUrl: MONGODB_URI }),
-    cookie: {
-      httpOnly: true,
-      sameSite: SAME_SITE,
-      secure: IS_PRODUCTION || SAME_SITE === "none"
-    },
+    store: MongoStore.create({ mongoUrl: MONGODB_URI, stringify: false }),
+    cookie: SESSION_COOKIE_OPTIONS,
   })
 );
+
+app.locals.sessionCookieOptions = SESSION_COOKIE_OPTIONS;
 
 app.use(passport.initialize());
 app.use(passport.session());
